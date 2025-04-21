@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Registration Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+</head>
+<body class="container my-5">
+<h2 class="mb-4">Registration form</h2>
+<form id="registrationForm" class="mb-3">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" required>
+        <div class="invalid-feedback">At least 5 characters required.</div>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" required>
+        <div class="invalid-feedback">Enter the Email.</div>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" required>
+        <div class="invalid-feedback">Enter the password.</div>
+    </div>
+    <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="text" class="form-control" id="phone" required pattern="^[789]\d{9}$">
+        <div class="invalid-feedback">Enter the Phone Number.</div>
+    </div>
+    <label class="form-label">User Type</label><br>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="userType" id="admin" value="Admin" checked>
+        <label class="form-check-label" for="admin">Admin</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="userType" id="user" value="User">
+        <label class="form-check-label" for="user">User</label>
+    </div>
+    <div class="form-text text-danger d-none" id="userTypeError">Please select the Usertype.</div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary my-4" id="submitBtn">Register</button>
+    </div>
+</form>
+</body>
+<script>
+    const apiUrl = "http://localhost:3000/users";
+    const form = document.getElementById("registrationForm");
+    const name = document.getElementById("name");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const phoneNumber = document.getElementById("phone");
+    const userTypeAdmin = document.getElementById("admin");
+
+
+    function validateName() {
+        if (name.value.trim().length >= 3) {
+            name.classList.add("is-valid");
+            name.classList.remove("is-invalid");
+            return true;
+        } else {
+            name.classList.add("is-invalid");
+            name.classList.remove("is-valid");
+            return false;
+        }
+    }
+
+    function validateEmail() {
+        if (email.value && email.checkValidity()) {
+            email.classList.add("is-valid");
+            email.classList.remove("is-invalid");
+            return true;
+        } else {
+            email.classList.add("is-invalid");
+            email.classList.remove("is-valid");
+            return false;
+        }
+    }
+
+    function validatePassword() {
+        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+        if (passRegex.test(password.value.trim())) {
+            password.classList.add("is-valid");
+            password.classList.remove("is-invalid");
+            return true;
+        } else {
+            password.classList.add("is-invalid");
+            password.classList.remove("is-valid");
+            return false;
+        }
+    }
+
+    function validatePhoneNum() {
+        const mobileRegex = /^[789]\d{9}$/;
+        if (mobileRegex.test(phoneNumber.value.trim())) {
+            phoneNumber.classList.add("is-valid");
+            phoneNumber.classList.remove("is-invalid");
+            return true;
+        } else {
+            phoneNumber.classList.add("is-invalid");
+            phoneNumber.classList.remove("is-valid");
+            return false;
+        }
+    }
+
+    name.addEventListener("blur", validateName);
+    email.addEventListener("blur", validateEmail);
+    password.addEventListener("blur", validatePassword);
+    phoneNumber.addEventListener("blur", validatePhoneNum);
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const userType = userTypeAdmin.checked ? "Admin" : "User";
+        const emailVal = document.getElementById("email").value;
+
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(users => {
+                const user = users.find(u => u.email === emailVal);
+                if (user) {
+                    alert("User already exists.");
+                    email.classList.add("is-invalid");
+                    email.classList.remove("is-valid");
+                    return;
+                }
+
+                // Only proceed if email doesn't exist
+                const entry = {
+                    name: name.value.trim(),
+                    email: email.value.trim(),
+                    password: password.value.trim(),
+                    phoneNumber: phoneNumber.value.trim(),
+                    userType: userType
+                };
+
+                fetch(apiUrl, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(entry)
+                })
+                    .then(res => res.json())
+                    .then(() => {
+                        alert("User added successfully.");
+                        window.location.href = "login.html";
+                    });
+            })
+            .catch(() => {
+                alert("Something went wrong while checking the email.");
+            });
+    });
+
+    function clearForm() {
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("phone").value = "";
+        name.classList.remove("is-valid", "is-invalid");
+        email.classList.remove("is-valid", "is-invalid");
+        password.classList.remove("is-valid", "is-invalid");
+        phoneNumber.classList.remove("is-valid", "is-invalid");
+    }
+
+    function validateForm() {
+        return validateName() && validateEmail() && validatePassword() && validatePhoneNum();
+    }
+</script>
+</html>

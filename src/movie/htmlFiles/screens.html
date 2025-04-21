@@ -1,0 +1,199 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="admin.html">Home</a></li>
+    <li class="breadcrumb-item active">Manage Screens</li>
+</ol>
+<hr>
+<h3 class="ps-3" style="color: goldenrod">Screens</h3>
+<button id="showFormBtn" class="class container-fixed justify-content-start btn btn-primary mb-3 ps-3" style="margin-left: 13px">
+    <i class="bi bi-plus-circle"></i> Add Screen
+</button>
+
+<!-- Movie Form (hidden by default) -->
+<form id="screenForm" class="mb-4 bg-black text-white" style="display: none;">
+    <div class="mb-3" style="padding-left: 13px ; padding-right: 50px">
+        <label for="screen" class="form-label">Screen</label>
+        <input type="text" class="form-control" id="screen" required>
+        <div class="invalid-feedback">Enter the Screen</div>
+    </div>
+    <div class="mb-3" style="padding-left: 13px ; padding-right: 50px">
+        <label for="location" class="form-label">Location</label>
+        <input type="text" class="form-control" id="location" required>
+        <div class="invalid-feedback">Enter the location.</div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-left: 13px " id="submitBtn">Add Screen</button>
+</form>
+
+<div class="container-fixed d-flex justify-content-center px-5 w-auto mt-3">
+    <table class="table table-hover mt-3">
+        <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">Screen</th>
+            <th scope="col">Location</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody id="screenTableBody">
+        </tbody>
+    </table>
+</div>
+<script>
+    (()=>{
+        const apiUrl = "http://localhost:3000/screens";
+        let screenDets = [];
+        const form = document.getElementById("screenForm");
+        const screen = document.getElementById("screen");
+        const loc = document.getElementById("location");
+        let editId = null;
+        const submitBtn = document.getElementById("submitBtn");
+        const showFormBtn = document.getElementById("showFormBtn");
+
+        showFormBtn.addEventListener("click", () => {
+            form.style.display = "block";
+            showFormBtn.style.display = "none";
+        });
+
+        function fetchAndRenderScreens() {
+            fetch(apiUrl)
+                .then(res => res.json())
+                .then(data => {
+                    screenDets = data;
+                    renderScreens(data);
+                });
+        }
+
+        function renderScreens(screens) {
+            const tbody = document.getElementById("screenTableBody");
+            tbody.innerHTML = "";
+
+            screens.forEach(scr => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${scr.id}</td>
+                <td>${scr.name}</td>
+                <td>${scr.location}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${scr.id}">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${scr.id}">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </td>`;
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    loadScreenForEdit(id);
+                });
+            });
+
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    deleteScreen(id);
+                });
+            });
+        }
+
+        function loadScreenForEdit(id) {
+            fetch(`${apiUrl}/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    screen.value = data.name;
+                    loc.value = data.location;
+                    editId = id;
+                    submitBtn.textContent = "Update Screen";
+                    form.style.display = "block";
+                    showFormBtn.style.display = "none";
+                });
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!validateScreenForm()) return;
+
+            const screens = {
+                name: screen.value.trim(),
+                location: loc.value.trim(),
+            };
+
+            if (editId) {
+                fetch(`${apiUrl}/${editId}`, {
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(screens)
+                }).then(() => {
+                    fetchAndRenderScreens();
+                    form.reset();
+                    clearScreenValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                    editId = null;
+                    submitBtn.textContent = "Add Screen";
+                });
+            } else {
+                fetch(apiUrl, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(screens)
+                }).then(() => {
+                    fetchAndRenderScreens();
+                    form.reset();
+                    clearScreenValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                });
+            }
+        });
+
+        function clearScreenValidation() {
+            screen.classList.remove("is-valid", "is-invalid");
+            loc.classList.remove("is-valid", "is-invalid");
+        }
+
+        function deleteScreen(id) {
+            if (confirm("Are you sure you want to delete it?")) {
+                fetch(`${apiUrl}/${id}`, {
+                    method: "DELETE"
+                }).then(() => fetchAndRenderScreens());
+            }
+        }
+
+        function validateScreen() {
+            if (screen.value.trim().length > 0) {
+                screen.classList.add("is-valid");
+                screen.classList.remove("is-invalid");
+                return true;
+            } else {
+                screen.classList.add("is-invalid");
+                screen.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateLocation() {
+            if (loc.value.trim().length > 0) {
+                loc.classList.add("is-valid");
+                loc.classList.remove("is-invalid");
+                return true;
+            } else {
+                loc.classList.add("is-invalid");
+                loc.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        screen.addEventListener("blur", validateScreen);
+        loc.addEventListener("blur", validateLocation);
+
+        function validateScreenForm() {
+            return validateScreen() && validateLocation();
+        }
+
+        fetchAndRenderScreens();
+    })
+    ();
+</script>

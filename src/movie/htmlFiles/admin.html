@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <meta name="viewport" content="width=device-width"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="d-flex flex-column min-vh-100" id="admin">
+<!-- TOP NAV: Logo + Admin -->
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Logo -->
+        <a class="navbar-brand" style="color: goldenrod" href="#">
+            <i class="fa-solid fa-film"></i> PVR<small><em>Cinemas</em></small>
+        </a>
+
+        <!-- Admin Dropdown -->
+        <div class="dropdown">
+            <a class="nav-link dropdown-toggle text-gol" style="color: goldenrod" href="#" data-bs-toggle="dropdown">
+                <i class="fa fa-user"></i> Admin
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end pe-2">
+                <li><a class="dropdown-item" href="#" onclick="loadPage('profile2.html')">Profile</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadPage('settings2.html')">Settings</a></li>
+                <li><a class="dropdown-item" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- SECOND ROW: Tabs + Search Bar -->
+<div class="bg-gradient">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center px-2 py-2">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" role="tab" onclick="loadPage('dashboard.html')">Dashboard</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" role="tab" onclick="loadPage('movieMasterForm.html')">Manage Movies</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab"  role="tab" onclick="loadPage('manageshowtimes.html')">Manage Showtimes</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab"  role="tab" onclick="loadPage('screens.html')">Screens</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab"  role="tab" onclick="loadPage('managebookings.html')">Bookings</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab"  role="tab" onclick="loadPage('query.html')">Search booking</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--- Main Content--->
+<div class="p-2" style="font-family: Raanana,serif ; flex: 1;" id="main-content">
+</div>
+
+<footer class="bg-black text-white text-center py-3" >
+    &copy; 2025 Movie Dashboard. All rights reserved.
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/script.js"></script>
+<script>src="../js/logout.js"</script>
+</body>
+</html>

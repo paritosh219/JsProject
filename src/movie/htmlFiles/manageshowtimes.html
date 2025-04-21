@@ -1,0 +1,324 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="admin.html">Home</a></li>
+    <li class="breadcrumb-item active">Manage Showtimes</li>
+</ol>
+<hr>
+<h3 class="mb-3" style="color: goldenrod; margin-left: 13px ">Manage Showtimes</h3>
+<button id="showFormBtn" class="btn btn-primary mb-3" style="margin-left: 13px">
+    <i class="bi bi-plus-circle"></i> Add Showtime
+</button>
+<form id="showtimeForm" class="bg-black p-3 rounded border border-secondary" style="display: none;">
+    <div class="mb-3">
+        <label class="form-label">Select Movie</label>
+        <select class="form-select" id="movieDropdown" required>
+            <option selected disabled>Select a movie</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Select Screen</label>
+        <select class="form-select" id="screenDropdown" required>
+            <option selected disabled>Select a screen</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Show Date</label>
+            <input type="date" class="form-control" id="showDate" required>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Show Time</label>
+            <input type="time" class="form-control" id="showTime" required>
+        </div>
+        <div class="mb-3">
+            <label for="totalSeats" class="form-label">Total Seats</label>
+            <input type="number" class="form-control" id="totalSeats" required min="1">
+            <div class="invalid-feedback">Enter the total number of seats.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="availableSeats" class="form-label">Available Seats</label>
+            <input type="number" class="form-control" id="availableSeats" required min="1">
+            <div class="invalid-feedback">Enter available seats.</div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Price (₹)</label>
+            <input type="number" class="form-control" id="price" required>
+        </div>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary" id="submitBtn">Add Showtime</button>
+</form>
+
+<div class="table-responsive mt-4">
+    <table class="table table-bordered table-hover align-middle">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>Movie</th>
+            <th>Screen</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>TotalSeats</th>
+            <th>AvailableSeats</th>
+            <th>Price (₹)</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="showTimeBody"></tbody>
+    </table>
+</div>
+<script>
+    (() => {
+        const apiUrl = "http://localhost:3000";
+        let showtimeDets = [];
+        let movies = [];
+        let screens = [];
+        let editId = null;
+
+        const form = document.getElementById("showtimeForm");
+        const movieDropdown = document.getElementById("movieDropdown");
+        const screenDropdown = document.getElementById("screenDropdown");
+        const date = document.getElementById("showDate");
+        const time = document.getElementById("showTime");
+        const availSeats = document.getElementById("availableSeats");
+        const totSeats = document.getElementById("totalSeats");
+        const price = document.getElementById("price");
+        const submitBtn = document.getElementById("submitBtn");
+        const showFormBtn = document.getElementById("showFormBtn");
+
+        // Show form on button click
+        showFormBtn.addEventListener("click", () => {
+            form.style.display = "block";
+            showFormBtn.style.display = "none";
+        });
+
+        function fetchAndRenderShowtimes() {
+            fetch(`${apiUrl}/showtimes`)
+                .then(res => res.json())
+                .then(data => {
+                    showtimeDets = data;
+                    renderShowtimes(data);
+                });
+        }
+
+        function fetchMoviesAndScreens() {
+            fetch(`${apiUrl}/movies`)
+                .then(res => res.json())
+                .then(data => {
+                    movies = data;
+                    movieDropdown.innerHTML = `<option selected disabled>Select a movie</option>`;
+                    data.forEach(movie => {
+                        movieDropdown.innerHTML += `<option value="${movie.id}">${movie.title}</option>`;
+                    });
+                });
+
+            fetch(`${apiUrl}/screens`)
+                .then(res => res.json())
+                .then(data => {
+                    screens = data;
+                    screenDropdown.innerHTML = `<option selected disabled>Select a screen</option>`;
+                    data.forEach(screen => {
+                        screenDropdown.innerHTML += `<option value="${screen.id}">${screen.name} (${screen.location})</option>`;
+                    });
+                });
+        }
+
+        function renderShowtimes(showtimes) {
+            const tbody = document.getElementById("showTimeBody");
+            tbody.innerHTML = "";
+
+            showtimes.forEach(st => {
+                const movie = movies.find(m => m.id === st.movieId);
+                const screen = screens.find(s => s.id === st.screenId);
+                const row = document.createElement("tr");
+                row.innerHTML = `
+<td>${st.id}</td>
+                <td>${movie?.title || "N/A"}</td>
+                <td>${screen?.name || "N/A"}</td>
+                <td>${st.showDate}</td>
+                <td>${st.showTime}</td>
+                 <td>${st.totalSeats}</td>
+                <td>${st.availableSeats}</td>
+                <td>₹${st.price}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${st.id}">
+                        <i class="bi bi-pencil-square"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${st.id}">
+                        <i class="bi bi-trash"></i>Delete
+                    </button>
+                </td>`;
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    loadShowtimeForEdit(id);
+                });
+            });
+
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    deleteShowtime(id);
+                });
+            });
+        }
+
+        function validateMovie() {
+            if (movieDropdown.value !== "") {
+                movieDropdown.classList.add("is-valid");
+                movieDropdown.classList.remove("is-invalid");
+                return true;
+            } else {
+                movieDropdown.classList.add("is-invalid");
+                movieDropdown.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateScreen() {
+            if (screenDropdown.value !== "") {
+                screenDropdown.classList.add("is-valid");
+                screenDropdown.classList.remove("is-invalid");
+                return true;
+            } else {
+                screenDropdown.classList.add("is-invalid");
+                screenDropdown.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validatePrice() {
+            if (price.value.trim() !== "" && parseFloat(price.value) > 0) {
+                price.classList.add("is-valid");
+                price.classList.remove("is-invalid");
+                return true;
+            } else {
+                price.classList.add("is-invalid");
+                price.classList.remove("is-valid");
+                return false;
+            }
+        }
+        function validateAvailableSeats() {
+            if (availSeats.value.trim().length > 0) {
+                availSeats.classList.add("is-valid");
+                availSeats.classList.remove("is-invalid");
+                return true;
+            } else {
+                availSeats.classList.add("is-invalid");
+                availSeats.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateTotalSeats() {
+            if (totSeats.value.trim().length > 0) {
+                totSeats.classList.add("is-valid");
+                totSeats.classList.remove("is-invalid");
+                return true;
+            } else {
+                totSeats.classList.add("is-invalid");
+                totSeats.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        movieDropdown.addEventListener("blur", validateMovie);
+        screenDropdown.addEventListener("blur", validateScreen);
+        price.addEventListener("blur", validatePrice);
+        availSeats.addEventListener("blur", validateAvailableSeats);
+        totSeats.addEventListener("blur", validateTotalSeats);
+
+        function validateForm() {
+            return validateMovie() && validateScreen() && validatePrice() && validateTotalSeats() && validateAvailableSeats();
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!validateForm()) return;
+
+            const showtime = {
+                movieId: movieDropdown.value,
+                screenId: screenDropdown.value,
+                showDate: date.value,
+                showTime: time.value,
+                availableSeats: availSeats.value.trim(),
+                totalSeats: totSeats.value.trim(),
+                price: Number(price.value)
+            };
+
+            if (editId) {
+                fetch(`${apiUrl}/showtimes/${editId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(showtime)
+                }).then(() => {
+                    fetchAndRenderShowtimes();
+                    form.reset();
+                    clearValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                    editId = null;
+                    submitBtn.textContent = "Add Showtime";
+                });
+            } else {
+                fetch(`${apiUrl}/showtimes`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(showtime)
+                }).then(() => {
+                    fetchAndRenderShowtimes();
+                    form.reset();
+                    clearValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                });
+            }
+        });
+
+        function clearValidation() {
+            movieDropdown.classList.remove("is-valid", "is-invalid");
+            screenDropdown.classList.remove("is-valid", "is-invalid");
+            price.classList.remove("is-valid", "is-invalid");
+            availSeats.classList.remove("is-valid", "is-invalid");
+            totSeats.classList.remove("is-valid", "is-invalid");
+        }
+
+        function loadShowtimeForEdit(id) {
+            fetch(`${apiUrl}/showtimes/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    movieDropdown.value = data.movieId;
+                    screenDropdown.value = data.screenId;
+                    date.value = data.showDate;
+                    time.value = data.showTime;
+                    totSeats.value = data.totalSeats;
+                    availSeats.value = data.availableSeats;
+                    price.value = data.price;
+                    editId = id;
+                    submitBtn.textContent = "Update Showtime";
+                    form.style.display = "block";
+                    showFormBtn.style.display = "none";
+                });
+        }
+
+        function deleteShowtime(id) {
+            if (confirm("Are you sure you want to delete it?")) {
+                fetch(`${apiUrl}/showtimes/${id}`, {
+                    method: "DELETE"
+                }).then(() => fetchAndRenderShowtimes());
+            }
+        }
+
+        fetchMoviesAndScreens();
+        fetchAndRenderShowtimes();
+    })();
+</script>
+
+

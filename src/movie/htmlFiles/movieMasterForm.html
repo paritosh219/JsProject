@@ -1,0 +1,307 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="admin.html">Home</a></li>
+    <li class="breadcrumb-item active text-white">Movie Management</li>
+</ol>
+<hr>
+<h2 class="mb-4" style="margin-left: 13px; color: goldenrod">Movie Management</h2>
+
+<!-- Add Movie Button -->
+<button id="showFormBtn" class="btn btn-primary mb-3" style="margin-left: 13px">
+    <i class="bi bi-plus-circle"></i> Add Movie
+</button>
+
+<!-- Movie Form (hidden by default) -->
+<form id="movieForm" class="mb-4 bg-black text-white" style="display: none;">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" required>
+        <div class="invalid-feedback">At least 5 characters required.</div>
+    </div>
+    <div class="mb-3">
+        <label for="language" class="form-label">Language</label>
+        <input type="text" class="form-control" id="language" required>
+        <div class="invalid-feedback">Enter the language.</div>
+    </div>
+    <div class="mb-3">
+        <label for="genre" class="form-label">Genre</label>
+        <input type="text" class="form-control" id="genre" required>
+        <div class="invalid-feedback">Enter the genre.</div>
+    </div>
+    <div class="mb-3">
+        <label for="duration" class="form-label">Duration</label>
+        <input type="number" class="form-control" id="duration" required>
+        <div class="invalid-feedback">Enter the Duration.</div>
+    </div>
+    <div class="mb-3">
+        <label for="releaseDate" class="form-label">Release Date</label>
+        <input type="date" class="form-control" id="releaseDate" required>
+        <div class="invalid-feedback">Enter the Date of Release.</div>
+    </div>
+    <button type="submit" class="btn btn-primary" id="submitBtn">Add Movie</button>
+</form>
+
+<!-- Movie Table -->
+<div class="container-fixed mt-5 justify-content-center px-5">
+    <table class="table table-hover align-items-center mt-auto">
+        <thead>
+        <tr>
+            <th scope="col">MovieId</th>
+            <th scope="col">Title</th>
+            <th scope="col">Language</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Duration</th>
+            <th scope="col">ReleaseDate</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody id="movieTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    (() => {
+        const apiUrl = "http://localhost:3000/movies";
+        let movieDets = [];
+        let sortDirection = 1;
+        let editId = null;
+        const form = document.getElementById("movieForm");
+        const title = document.getElementById("title");
+        const lang = document.getElementById("language");
+        const gen = document.getElementById("genre");
+        const time = document.getElementById("duration");
+        const releaseD = document.getElementById("releaseDate");
+        const submitBtn = document.getElementById("submitBtn");
+        const showFormBtn = document.getElementById("showFormBtn");
+
+        // Show form on button click
+        showFormBtn.addEventListener("click", () => {
+            form.style.display = "block";
+            showFormBtn.style.display = "none";
+        });
+
+        // Search bar
+        const searchInput = document.createElement("input");
+        searchInput.setAttribute("type", "text");
+        searchInput.setAttribute("placeholder", "Search by Movie Name...",);
+        searchInput.classList.add("form-control", "mb-3");
+        document.querySelector(".table").parentNode.insertBefore(searchInput, document.querySelector(".table"));
+        searchInput.style.backgroundColor = "black";
+        searchInput.style.color = "white";
+        searchInput.style.border = "1px solid white";
+
+        searchInput.addEventListener("input", () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filtered = movieDets.filter(mov => mov.title.toLowerCase().includes(searchTerm));
+            renderMovies(filtered);
+        });
+
+        function fetchAndRenderMovies() {
+            fetch(apiUrl)
+                .then(res => res.json())
+                .then(data => {
+                    movieDets = data;
+                    renderMovies(data);
+                });
+        }
+
+        function renderMovies(movies) {
+            const tbody = document.getElementById("movieTableBody");
+            tbody.innerHTML = "";
+
+            movies.forEach(mov => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${mov.id}</td>
+                <td>${mov.title}</td>
+                <td>${mov.language}</td>
+                <td>${mov.genre}</td>
+                <td>${mov.duration} minutes</td>
+                <td>${mov.releaseDate}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1 edit-btn" data-id="${mov.id}">
+                        <i class="bi bi-pencil-square"></i>Edit
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${mov.id}">
+                        <i class="bi bi-trash"></i>Delete
+                    </button>
+                </td>`;
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    loadMovieForEdit(id);
+                });
+            });
+
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    deleteMovie(id);
+                });
+            });
+        }
+
+        function validateTitle() {
+            if (title.value.trim().length >= 5) {
+                title.classList.add("is-valid");
+                title.classList.remove("is-invalid");
+                return true;
+            } else {
+                title.classList.add("is-invalid");
+                title.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateLanguage() {
+            if (lang.value.trim().length >0) {
+                lang.classList.add("is-valid");
+                lang.classList.remove("is-invalid");
+                return true;
+            } else {
+                lang.classList.add("is-invalid");
+                lang.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateGenre() {
+            if (gen.value.trim().length >0) {
+                gen.classList.add("is-valid");
+                gen.classList.remove("is-invalid");
+                return true;
+            } else {
+                gen.classList.add("is-invalid");
+                gen.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateTime() {
+            if (time.value.trim().length > 0) {
+                time.classList.add("is-valid");
+                time.classList.remove("is-invalid");
+                return true;
+            } else {
+                time.classList.add("is-invalid");
+                time.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        function validateReleaseDate() {
+            if (releaseD.value.trim().length != null) {
+                releaseD.classList.add("is-valid");
+                releaseD.classList.remove("is-invalid");
+                return true;
+            } else {
+                releaseD.classList.add("is-invalid");
+                releaseD.classList.remove("is-valid");
+                return false;
+            }
+        }
+
+        title.addEventListener("blur", validateTitle);
+        lang.addEventListener("blur", validateLanguage);
+        gen.addEventListener("blur", validateGenre);
+        time.addEventListener("blur", validateTime);
+        releaseD.addEventListener("blur", validateReleaseDate);
+
+
+        function validateForm() {
+            return validateTitle() && validateLanguage() && validateGenre() && validateTime() && validateReleaseDate() ;
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!validateForm()) return;
+
+            const movie = {
+                title: title.value.trim(),
+                language: lang.value.trim(),
+                genre: gen.value.trim(),
+                duration: time.value.trim(),
+                releaseDate: releaseD.value.trim(),
+            };
+
+            if (editId) {
+                fetch(`${apiUrl}/${editId}`, {
+                    method: "PUT",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(movie)
+                }).then(() => {
+                    fetchAndRenderMovies();
+                    form.reset();
+                    clearValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                    editId = null;
+                    submitBtn.textContent = "Add Movie";
+                });
+            } else {
+                fetch(apiUrl, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(movie)
+                }).then(() => {
+                    fetchAndRenderMovies();
+                    form.reset();
+                    clearValidation();
+                    form.style.display = "none";
+                    showFormBtn.style.display = "block";
+                });
+            }
+        });
+
+        // Sorting
+        document.querySelector("th:nth-child(2)").style.cursor = "pointer";
+        document.querySelector("th:nth-child(2)").addEventListener("click", () => {
+            const sorted = [...movieDets].sort((a, b) => a.title.localeCompare(b.title) * sortDirection);
+            sortDirection *= -1;
+            renderMovies(sorted);
+        });
+
+        document.querySelector("th:nth-child(4)").style.cursor = "pointer";
+        document.querySelector("th:nth-child(4)").addEventListener("click", () => {
+            const sorted = [...movieDets].sort((a, b) => a.genre.localeCompare(b.genre) * sortDirection);
+            sortDirection *= -1;
+            renderMovies(sorted);
+        });
+
+        function clearValidation() {
+            title.classList.remove("is-valid", "is-invalid");
+            lang.classList.remove("is-valid", "is-invalid");
+            gen.classList.remove("is-valid", "is-invalid");
+            time.classList.remove("is-valid", "is-invalid");
+            releaseD.classList.remove("is-valid", "is-invalid");
+        }
+
+        function loadMovieForEdit(id) {
+            fetch(`${apiUrl}/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    title.value = data.title;
+                    lang.value = data.language;
+                    gen.value = data.genre;
+                    time.value = data.duration;
+                    releaseD.value = data.releaseDate;
+                    editId = id;
+                    submitBtn.textContent = "Update Movie";
+                    form.style.display = "block";
+                    showFormBtn.style.display = "none";
+                });
+        }
+
+        function deleteMovie(id) {
+            if (confirm("Are you sure you want to delete it?")) {
+                fetch(`${apiUrl}/${id}`, {
+                    method: "DELETE"
+                }).then(() => fetchAndRenderMovies());
+            }
+        }
+
+        fetchAndRenderMovies();
+    })();
+</script>

@@ -1,0 +1,84 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="admin.html">Home</a></li>
+    <li class="breadcrumb-item active">Query</li>
+</ol>
+<hr>
+<h3 class="ps-3" style="color: goldenrod">Search Bookings</h3>
+<div class="container-fixed mt-5 justify-content-center px-5">
+    <table class="table table-hover align-items-center mt-auto">
+        <thead>
+        <tr>
+            <th scope="col">Booking ID</th>
+            <th scope="col">User Name</th>
+            <th scope="col">Movie Name</th>
+            <th scope="col">Showtime</th>
+            <th scope="col">Seats</th>
+            <th scope="col">Seat Numbers</th>
+            <th scope="col">Total Price</th>
+            <th scope="col">status</th>
+        </tr>
+        </thead>
+        <tbody id="bookingsTableBody">
+        </tbody>
+    </table>
+</div>
+<script>
+    (()=> {
+        const apiUrl = "http://localhost:3000/bookings";
+        let bookingDets = [];
+        let sortDirection =1;
+        const searchInput = document.createElement("input");
+        searchInput.setAttribute("type", "text");
+        searchInput.setAttribute("placeholder", "Search by userName",);
+        searchInput.classList.add("form-control", "mb-3");
+        document.querySelector(".table").parentNode.insertBefore(searchInput, document.querySelector(".table"));
+        searchInput.style.backgroundColor = "black";
+        searchInput.style.color = "white";
+        searchInput.style.border = "1px solid white";
+
+        searchInput.addEventListener("input", () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filtered = bookingDets.filter(mov => mov.userName.toLowerCase().includes(searchTerm));
+            renderBookings(filtered);
+        });
+
+        function fetchAndRenderBookings() {
+            fetch(apiUrl)
+                .then(res => res.json())
+                .then(data => {
+                    bookingDets = data;
+                    renderBookings(data);
+                });
+        }
+
+        function renderBookings(bookings) {
+            const tbody = document.getElementById("bookingsTableBody");
+            tbody.innerHTML = "";
+
+            bookings.forEach(book => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                <td>${book.id}</td>
+                <td>${book.userName}</td>
+                <td>${book.movieTitle}</td>
+                <td>${book.showTime}</td>
+                <td>${book.seats}</td>
+                <td>${book.seatNumbers}</td>
+                <td>${book.totalPrice}</td>
+            <td>${book.status}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        document.querySelector("th:nth-child(7)").style.cursor = "pointer";
+        document.querySelector("th:nth-child(7)").addEventListener("click", () => {
+            const sorted = [...bookingDets].sort((a, b) => (parseFloat(a.totalPrice)-parseFloat(b.totalPrice)) * sortDirection);
+            sortDirection *= -1;
+            renderBookings(sorted);
+        });
+
+
+        fetchAndRenderBookings();
+    })
+    ();
+</script>

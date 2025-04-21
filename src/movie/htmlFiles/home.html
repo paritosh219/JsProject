@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width,initial scale=1.0"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!--Header -->
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand " style="color: goldenrod" href="#"><i
+                class="fa-solid fa-film"></i> PVR<small><em>Cinemas</em></small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02"
+                aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="ms-auto dropdown">
+            <a class="nav-link dropdown-toggle text-gol" style="color: goldenrod" href="#"
+               data-bs-toggle="dropdown">
+                <i class="fa fa-user"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end pe-2 ">
+                <li><a class="dropdown-item" href="login.html">LogIn</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="p-2" style="font-family: Raanana,serif ; flex: 1;" id="main-content">
+    <ul class="nav nav-tabs mt-2 ms-1" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" href="#nowshowing" aria-selected="false" role="tab" tabindex="-1">Now
+                Showing</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link " data-bs-toggle="tab" href="#upcoming-movies" aria-selected="false" role="tab">Upcoming
+                Movies</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link " data-bs-toggle="tab" href="#trending" aria-selected="false" role="tab">Trending Movies</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Genres</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" data-bs-toggle="tab" href="#dropdown1">English</a>
+                <a class="dropdown-item" data-bs-toggle="tab" href="#dropdown2">Hindi</a>
+            </div>
+        </li>
+        <li>
+            <form class="d-flex mx-auto ms-5 w-100 mt-auto">
+                <input class="form-control w-1000 ms-4" type="search" placeholder="Search">
+                <button class="btn btn-secondary" type="submit">Search</button>
+            </form>
+        </li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade" id="nowshowing" role="tabpanel">
+            <h4>now showing movies appear here</h4>
+        </div>
+        <div class="tab-pane fade" id="upcoming-movies" role="tabpanel">
+            <h4>upcoming movies appear here</h4>
+        </div>
+        <div class="tab-pane fade" id="trending" role="tabpanel">
+            <h4>trending movies appear here</h4>
+        </div>
+        <div class="tab-pane fade" id="dropdown1">
+            <p>dropdown2</p>
+        </div>
+        <div class="tab-pane fade" id="dropdown2">
+            <p>dropdown1</p>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-black text-white text-center py-3" >
+    &copy; 2025 Admin Dashboard. All rights reserved.
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/script.js"></script>
+</body>
+</html>

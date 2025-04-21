@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width,initial scale=1.0"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="d-flex flex-column min-vh-100" id="admin">
+<!-- TOP NAV: Logo + Admin -->
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Logo -->
+        <a class="navbar-brand" style="color: goldenrod" href="#">
+            <i class="fa-solid fa-film"></i> PVR<small><em>Cinemas</em></small>
+        </a>
+    </div>
+</nav>
+<div class="container-fluid d-flex justify-content-center mt-4">
+    <h3>Login</h3>
+</div>
+<hr class="mb-3 container-fluid align-content-center w-50" style="color: goldenrod; ">
+<div class="container-fluid d-flex justify-content-center mt-4 w-100">
+    <div class="card border-warning mb-3" style="max-width: 500px;">
+        <div class="card-body w-150">
+            <div class="card-text">
+                <form id="loginForm">
+                    <label for="email" style="color: goldenrod">Email:</label><br>
+                    <input type="email" id="email" placeholder="enter email" required><br>
+                    <label for="password" style="color: goldenrod">Password:</label><br>
+                    <input type="password" id="password" placeholder="enter password" required><br>
+                    <button type="submit" class="btn btn-dark text-white my-2">Log In</button>
+                    <h6>new user?</h6>
+                    <a href="registrationForm.html" class="nav-link text-white">
+                        <button type="button" class="btn btn-dark text-white">Register</button>
+                        <div id="error" class="text-danger mt-2"></div>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        verify();
+    });
+
+    function verify() {
+        const apiUrl = "http://localhost:3000/users";
+        const name = document.getElementById("name");
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(users => {
+                const user = users.find(u => u.email === email && u.password === password);
+                if (user) {
+                    localStorage.setItem("User",JSON.stringify({
+                        id : user.id,
+                        name: user.name,
+                        role : user.userType
+                    }));
+                    if (user.userType === "Admin") {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "user.html";
+                    }
+                } else {
+                    document.getElementById("error").textContent = "Invalid email or password.";
+                }
+
+            })
+            .catch(err => {
+                console.error("Error fetching users:", err);
+            });
+    }
+
+    function getUserId() {
+        return localStorage.getItem("userId");
+    }
+
+    function getUserName() {
+        return localStorage.getItem("userName");
+    }
+
+    function getUserType() {
+        return localStorage.getItem("userType");
+    }
+
+</script>
+</body>
+</html>

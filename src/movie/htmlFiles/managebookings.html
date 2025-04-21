@@ -1,0 +1,88 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item active">Manage Bookings</li>
+</ol>
+<hr>
+<h3 class="ps-3" style="color: goldenrod">Manage Bookings</h3>
+<div class="container-fixed mt-5 justify-content-center px-5">
+    <table class="table table-hover align-items-center mt-auto">
+        <thead>
+        <tr>
+            <th scope="col">Booking ID</th>
+            <th scope="col">User Name</th>
+            <th scope="col">Movie Name</th>
+            <th scope="col">Showtime</th>
+            <th scope="col">Seats</th>
+            <th scope="col">Seat Numbers</th>
+            <th scope="col">Total Price</th>
+            <th scope="col">status</th>
+        </tr>
+        </thead>
+        <tbody id="bookingTableBody">
+        </tbody>
+    </table>
+</div>
+<script>
+    (() => {
+        const apiUrl = "http://localhost:3000/";
+
+        async function fetchAllData() {
+            const [usersRes, showtimesRes, bookingsRes, moviesRes] = await Promise.all([
+                fetch(`${apiUrl}users`),
+                fetch(`${apiUrl}showtimes`),
+                fetch(`${apiUrl}bookings`),
+                fetch(`${apiUrl}movies`) // Fetch movies
+            ]);
+            const users = await usersRes.json();
+            const showtimes = await showtimesRes.json();
+            const bookings = await bookingsRes.json();
+            const movies = await moviesRes.json(); // Get movies data
+            return { users, showtimes, bookings, movies };
+        }
+
+        function getMovieTitle(showtimeId, showtimes, movies) {
+            const showtime = showtimes.find(s => String(s.id) === String(showtimeId));
+            if (!showtime) return "Unknown Movie";
+            const movie = movies.find(m => String(m.id) === String(showtime.movieId));
+            return movie ? movie.title : "Unknown Movie";
+        }
+
+        function getShowTime(showtimeId, showtimes) {
+            const showtime = showtimes.find(s => String(s.id) === String(showtimeId));
+            return showtime ? showtime.showTime : "Unknown Time";
+        }
+
+        async function renderBookingTable() {
+            try {
+                const { users, showtimes, bookings, movies } = await fetchAllData();
+                const tbody = document.getElementById("bookingTableBody");
+                tbody.innerHTML = bookings.map(b => {
+                    let displayName = "Guest";
+                    if (b.userName) {
+                        displayName = b.userName;
+                    } else if (b.userId) {
+                        const user = users.find(u => String(u.id) === String(b.userId));
+                        displayName = user ? user.name : "Unknown User";
+                    }
+
+                    return `
+                    <tr>
+                        <td>${b.id}</td>
+                        <td>${displayName}</td>
+                        <td>${getMovieTitle(b.showtimeId, showtimes, movies)}</td>
+                        <td>${getShowTime(b.showtimeId, showtimes)}</td>
+                        <td>${b.seats}</td>
+                        <td>${b.seatNumbers || "Not specified"}</td>
+                        <td>₹${b.totalPrice}</td>
+                        <td>${b.status || "confirmed"}</td>
+                    </tr>
+                `;
+                }).join("");
+
+            } catch (err) {
+                console.error("Error loading booking data:", err);
+            }
+        }
+        renderBookingTable();
+    })();
+</script>

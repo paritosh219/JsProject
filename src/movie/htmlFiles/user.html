@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User</title>
+    <meta name="viewport" content="width=device-width"/>
+    <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!--Header -->
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand " style="color: goldenrod" href="#"><i
+                class="fa-solid fa-film"></i> PVR<small><em>Cinemas</em></small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02"
+                aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="ms-auto dropdown">
+            <a class="nav-link dropdown-toggle text-gol" style="color: goldenrod" href="#"
+               data-bs-toggle="dropdown">
+                <i class="fa fa-user"></i> User
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end pe-4 ">
+                <li><a class="dropdown-item" href="#" onclick="loadPage('profile.html')">Profile</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadPage('orders.html')">Your Orders</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadPage('settings.html')">Settings</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadPage('helpsupport.html')">Help & Support</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadPage('faqs.html')">FAQs</a></li>
+                <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="bg-gradient">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center px-2 py-2">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" role="tab" onclick="loadPage('nowShowing.html')">Now Showing</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" role="tab" onclick="loadPage('upcomingMovies.html')">Upcoming Movies</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="p-2" style="font-family: Raanana,serif ; flex: 1;" id="main-content"></div>
+
+<footer class="bg-black text-white text-center py-3" >
+    &copy; 2025 Admin Dashboard. All rights reserved.
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/script.js"></script>
+</body>
+</html>

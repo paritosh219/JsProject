@@ -1,0 +1,85 @@
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="user.html">Home</a></li>
+    <li class="breadcrumb-item active">Your Orders</li>
+</ol>
+<hr>
+<div class="container mt-4">
+    <table class="table table-hover text-center">
+        <thead>
+        <tr>
+            <th>Movie</th>
+            <th>Showtime</th>
+            <th>Seats</th>
+            <th>Total Price</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="userTransactionTable"></tbody>
+    </table>
+</div>
+<script>
+    (()=> {
+        const apiUrl = "http://localhost:3000/";
+
+        async function loadUserTransactions() {
+            const currentUser = JSON.parse(localStorage.getItem("User"));
+            if (!currentUser) {
+                document.body.innerHTML = `<h3 class="text-danger text-center mt-5">Please log in to view your transactions.</h3>`;
+                return;
+            }
+
+            const [bookingsRes, showtimesRes, moviesRes] = await Promise.all([
+                fetch(apiUrl + "bookings"),
+                fetch(apiUrl + "showtimes"),
+                fetch(apiUrl + "movies")
+            ]);
+
+            const bookings = await bookingsRes.json();
+            const showtimes = await showtimesRes.json();
+            const movies = await moviesRes.json();
+
+            const userBookings = bookings.filter(b => b.userName === currentUser.name);
+            const tbody = document.getElementById("userTransactionTable");
+
+            tbody.innerHTML = userBookings.map(b => {
+                const show = showtimes.find(s => s.id === b.showtimeId || s.id === b.showtimeId.toString());
+                const movie = movies.find(m => m.id === show.movieId);
+                return `
+            <tr>
+                <td>${movie?.title || "Unknown"}</td>
+                <td>${show?.showDate || ""} ${show?.showTime || ""}</td>
+                <td>${b.seats}</td>
+                <td>₹${b.totalPrice}</td>
+                <td>${b.status}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="cancelBooking('${b.id}', ${b.seats}, '${show.id}')">Cancel</button></td>
+            </tr>
+        `;
+            }).join("");
+        }
+
+        window.cancelBooking = async function(bookingId, seatCount, showtimeId){
+            if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+            // 1. Delete the booking
+            await fetch(apiUrl + "bookings/" + bookingId, {method: "DELETE"});
+
+            // 2. Restore the seats
+            const showRes = await fetch(apiUrl + "showtimes/" + showtimeId);
+            const show = await showRes.json();
+            const updatedSeats = parseInt(show.availableSeats) + parseInt(seatCount);
+
+            await fetch(apiUrl + "showtimes/" + showtimeId, {
+                method: "PATCH",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({availableSeats: updatedSeats.toString()})
+            });
+
+            alert("Booking cancelled.");
+            loadUserTransactions(); // refresh table
+        }
+
+        loadUserTransactions();
+    })
+    ();
+</script>
