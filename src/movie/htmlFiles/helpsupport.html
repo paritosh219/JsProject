@@ -1,8 +1,57 @@
 <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item"><a href="nowShowing.html">Home</a></li>
     <li class="breadcrumb-item active">Help & Support</li>
 </ol>
 <hr>
-<h1>Welcome to Help and Support</h1>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="scriptUser.js"></script>
+<div class="container my-5">
+    <h2 class="mb-4" style="color: goldenrod">🛠️ Help & Support</h2>
+
+    <div class="accordion" id="helpAccordion">
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    How do I book tickets?
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    Visit the movie list, choose your movie, select a showtime, choose number of seats, and click the "Book" button.
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    How can I cancel my booking?
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    Go to the "Your Orders" section and click the "Cancel" button next to your booking. Seats will be released automatically.
+                </div>
+            </div>
+        </div>
+
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFour">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                    Who can I contact for support?
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                    Email us at <a href="mailto:support@Pvrcinema.com">support@inoxcinema.com</a> or call 📞 +91-987654. We’re happy to help!
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-5">
+        <h5>Still need help?</h5>
+        <p>Feel free to <a href="mailto:support@Pvrcinema.com">email our support team</a> for personalized assistance.</p>
+    </div>
+</div>
